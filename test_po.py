@@ -19,44 +19,88 @@ class RegistrationPage:
         browser.element("#lastName").type(val2)
         pass
 
+    def fill_birthday(self, month, year, day):
+        browser.element('#dateOfBirthInput').perform(command.js.scroll_into_view)
+        browser.element("#dateOfBirthInput").click()
+        browser.element(".react-datepicker__month-select").type("May")
+        browser.element(".react-datepicker__year-select").type("1999")
+        # browser.all("//*[contains(@class, 'react-datepicker__day') and not(contains(@class, 'react-datepicker__day--outside-month'))]").element_by(have.exact_text('27')).click() #get(query.text)
+        browser.all(".react-datepicker__day:not(.react-datepicker__day--outside-month)").element_by(
+            have.exact_text('27')).click()  # get(query.text)
+
+    @property
+    def registered_user_data(self):
+        return browser.element('.table').all('td').even
+
+    def should_registered_user_data(self, param0, param1, param2, param3, param4, param5, param6, param7, param8,
+                                    param9):
+        self.registered_user_data.should(have.exact_texts(
+            param0, param1, param2, param3, param4, param5, param6, param7,
+            param8, param9
+        ))
+
+    def fill_phone(self, phone):
+        browser.element("#userNumber").set_value(phone)
+        pass
+
+    def fill_email(self, email):
+        browser.element("#userEmail").should(be.visible).type(email)
+
+    def select_gender(self, s_gender):
+        browser.all('[name=gender]').element_by(have.value(s_gender)).element('..').click()
+
+    def upload_picture(self, picture_name):
+        browser.element('#uploadPicture').set_value(resource.script_dir(picture_name))
+
+    def select_state_and_city(self, state, city):
+        time.sleep(1)
+        browser.element('#state').perform(command.js.scroll_into_view)
+        browser.element('#state').click()
+        browser.all('[id^=react-select][id*=option]').element_by(have.exact_text(state)).click()
+        browser.element('#city').click()
+        browser.all('[id^=react-select][id*=option]').element_by(have.exact_text(city)).click()
+
+    def select_hobies(self, hobbies):
+        browser.all(".custom-checkbox").element_by(have.exact_text(hobbies)).click()
+
+    def fill_address(self, address):
+        browser.element("#currentAddress").type(address)
+
+    def submit(self):
+        browser.element("button[id=submit]").perform(command.js.scroll_into_view)
+        browser.element("button[id=submit]").perform(command.js.click)
+
+
+# END CLASS RegistrationPage
 
 def student_registrtion_form():
-
     reg_page = RegistrationPage()
     reg_page.open()
     reg_page.fill_name("Alex", "Gladov")
+    reg_page.fill_email('alex123456@gmail.com')
+    reg_page.fill_phone("99999997878")
+    reg_page.fill_birthday("May", "1999", 27)
+    reg_page.select_gender('Female')
 
-
-    browser.element("#userEmail").should(be.visible).type('alex123456@gmail.com')
-    browser.element("#userNumber").set_value("99999997878")
-
-    browser.all('[name=gender]').element_by(have.value('Female')).element('..').click()
-    browser.element('#dateOfBirthInput').perform(command.js.scroll_into_view)
-    browser.element("#dateOfBirthInput").click()
-    browser.element(".react-datepicker__month-select").type("May")
-    browser.element(".react-datepicker__year-select").type("1999")
-
-    #browser.all("//*[contains(@class, 'react-datepicker__day') and not(contains(@class, 'react-datepicker__day--outside-month'))]").element_by(have.exact_text('27')).click() #get(query.text)
-    browser.all(".react-datepicker__day:not(.react-datepicker__day--outside-month)").element_by(
-        have.exact_text('27')).click()  # get(query.text)
     #print(xl)
-    time.sleep(3)
-    browser.element('#state').perform(command.js.scroll_into_view)
-    print(resource.script_dir('a2.jpg'))
-    browser.element('#uploadPicture').set_value(resource.script_dir('a2.jpg'))
 
-    browser.all(".custom-checkbox").element_by(have.exact_text('Reading')).click()
-    browser.element("#currentAddress").type("161, Magic str.")
-    browser.element("#subjectsInput").type("Magic")
-    browser.element('#state').click()
-    browser.all('[id^=react-select][id*=option]').element_by(have.exact_text('NCR')).click()
-    browser.element('#city').click()
-    browser.all('[id^=react-select][id*=option]').element_by(have.exact_text('Noida')).click()
+    reg_page.fill_birthday("May", "1999", 27)
+    reg_page.select_state_and_city('NCR', 'Noida')
+
+    #print(resource.script_dir('a2.jpg'))
+    reg_page.upload_picture('a2.jpg')
+    reg_page.select_hobies('Reading')
+    reg_page.fill_address("161, Magic str.")
+
     # press_enter()
-    # browser.element(["button[type=submit]").perform(command.js.scroll_into_view)
 
-    time.sleep(6)
+    time.sleep(3)
+    reg_page.submit()
 
+    time.sleep(3)
+
+    reg_page.should_registered_user_data('Alex Gladov', 'alex123456@gmail.com', 'Female', '9999999787', '27 May,1999',
+                                         '', 'Reading', 'a2.jpg', '161, Magic str.', 'NCR Noida')
     '''
     browser.element("li[data-value=Science]").click()
     browser.element("li[data-value=Sports]").click()
@@ -110,8 +154,3 @@ def student_registrtion_form():
 
 
 student_registrtion_form()
-
-
-
-
-
